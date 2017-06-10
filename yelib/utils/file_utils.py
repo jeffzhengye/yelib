@@ -19,9 +19,18 @@ def gen_open(f, mode='rb'):
         return open(f, mode)
 
 
-def file2str_list(filename, encoding='utf-8'):
+def file2str_list(filename, to_lower=False, encoding='utf-8'):
     """return a list from a file
         support normal compressed files
     """
     with closing(gen_open(filename)) as f:
-        return f.read().decode(encoding).splitlines()
+        lines = f.read().decode(encoding).splitlines()
+        if to_lower:
+            lines = [x.strip().lower() for x in lines]
+        return lines
+
+
+def list2file(string_list, output, encoding='utf-8'):
+    import codecs
+    with codecs.open(output, "w", encoding) as f:
+        f.write('\n'.join(string_list))
