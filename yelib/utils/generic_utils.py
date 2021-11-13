@@ -13,6 +13,7 @@ from bz2 import BZ2File
 from contextlib import closing
 import zlib
 import md5
+import datetime
 
 __author__ = 'zheng'
 
@@ -113,3 +114,15 @@ def text_compress(text, level=9):
 
 def text_decompress(text):
     return zlib.decompress(text)
+
+
+def random_file_name(basename='default', suffix='.jpg', date_formatter="%y-%m%d_%H%M%S"):
+    """
+    :param basename:
+    :param suffix:
+    :param date_formatter:
+    :return:
+    """
+    name = datetime.datetime.now().strftime(date_formatter)
+    filename = "_".join([basename, name]) + suffix
+    return filename
