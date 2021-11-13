@@ -8,7 +8,7 @@ import gzip
 def gen_open(f, mode='rb'):
     if isinstance(f, int):  # file descriptor
         return io.open(f, mode, closefd=False)
-    elif not isinstance(f, basestring):
+    elif not isinstance(f, str):
         raise TypeError("expected {str, int, file-like}, got %s" % type(f))
     _, ext = os.path.splitext(f)
     if ext == ".gz":
