@@ -12,7 +12,7 @@ import gzip
 from bz2 import BZ2File
 from contextlib import closing
 import zlib
-import md5
+from hashlib import md5
 import datetime
 
 __author__ = 'zheng'
