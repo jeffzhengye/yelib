@@ -116,13 +116,15 @@ def text_decompress(text):
     return zlib.decompress(text)
 
 
-def random_file_name(basename='default', suffix='.jpg', date_formatter="%y-%m%d_%H%M%S"):
+def random_file_name(basename='default', suffix='.jpg', date_formatter="%y-%m%d_%H%M%S", groups=1):
     """
     :param basename:
     :param suffix:
     :param date_formatter:
+    :param groups 生成成group，顺号的文件名，便于比较。
     :return:
     """
     name = datetime.datetime.now().strftime(date_formatter)
-    filename = "_".join([basename, name]) + suffix
-    return filename
+    filenames = ["_".join([basename, name, str(i)]) + suffix for i in range(groups)]
+        
+    return filenames[0] if groups == 1 else filenames
