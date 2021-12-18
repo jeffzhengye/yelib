@@ -1,8 +1,13 @@
 # encoding: utf-8
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import re
 
 __author__ = 'jeffye'
+
+import six
+from six import unichr
+import pypinyin
+from pypinyin import pinyin
 
 """
 Suggestion: convert python str to unicode whenever possible.
@@ -11,6 +16,7 @@ Suggestion: convert python str to unicode whenever possible.
 
 def any2utf8(text, errors='strict', encoding='utf8'):
     """Convert a string (unicode or bytestring in `encoding`), to bytestring in utf8.
+    only for python 2
     """
     if isinstance(text, unicode):
         return text.encode('utf8')
@@ -22,10 +28,23 @@ to_utf8 = any2utf8
 
 
 def any2unicode(text, encoding='utf8', errors='strict'):
-    """Convert a string (bytestring in `encoding` or unicode), to unicode."""
-    if isinstance(text, unicode):
-        return text
-    return unicode(text, encoding, errors=errors)
+    """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
+    if six.PY3:
+        if isinstance(text, str):
+            return text
+        elif isinstance(text, bytes):
+            return text.decode("utf-8", "ignore")
+        else:
+            raise ValueError("Unsupported string type: %s" % (type(text)))
+    elif six.PY2:
+        if isinstance(text, str):
+            return text.decode("utf-8", "ignore")
+        elif isinstance(text, unicode):
+            return text
+        else:
+            raise ValueError("Unsupported string type: %s" % (type(text)))
+    else:
+        raise ValueError("Not running on Python2 or Python 3?")
 
 
 to_unicode = any2unicode
@@ -185,13 +204,68 @@ def getType(c):
     return CHARTYPE.OTHER
 
 
+def remove_punctuation(strs):
+    """
+    去除标点符号
+    :param strs:
+    :return:
+    """
+    return re.sub("[\s+\.\!\/<>“”,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）]+", "", strs.strip())
+
+
+def traditional2simplified(sentence):
+    """
+    将sentence中的繁体字转为简体字
+    :param sentence: 待转换的句子
+    :return: 将句子中繁体字转换为简体字之后的句子
+    """
+    return Converter('zh-hans').convert(sentence)
+
+
+def simplified2traditional(sentence):
+    """
+    将sentence中的简体字转为繁体字
+    :param sentence: 待转换的句子
+    :return: 将句子中简体字转换为繁体字之后的句子
+    """
+    return Converter('zh-hant').convert(sentence)
+
+
+def get_homophones_by_char(input_char):
+    """
+    根据汉字取同音字
+    :param input_char:
+    :return:
+    """
+    result = []
+    # CJK统一汉字区的范围是0x4E00-0x9FA5,也就是我们经常提到的20902个汉字
+    for i in range(0x4e00, 0x9fa6):
+        if pinyin([chr(i)], style=pypinyin.NORMAL)[0][0] == pinyin(input_char, style=pypinyin.NORMAL)[0][0]:
+            result.append(chr(i))
+    return result
+
+
+def get_homophones_by_pinyin(input_pinyin):
+    """
+    根据拼音取同音字
+    :param input_pinyin:
+    :return:
+    """
+    result = []
+    # CJK统一汉字区的范围是0x4E00-0x9FA5,也就是我们经常提到的20902个汉字
+    for i in range(0x4e00, 0x9fa6):
+        if pinyin([chr(i)], style=pypinyin.TONE2)[0][0] == input_pinyin:
+            # TONE2: 中zho1ng
+            result.append(chr(i))
+    return result
+
+
 def tokenize_chinese_by_character(query):
-    assert (type(query) == unicode)
     bufIndex = 0
     retList = []
     buf = []
     preType = -1
-    for i in xrange(0, len(query)):
+    for i in range(0, len(query)):
         c = query[i]
         curType = getType(c)
         if curType is CHARTYPE.DIGIT or curType is CHARTYPE.LETTER:
@@ -219,7 +293,8 @@ def tokenize_chinese_by_character(query):
 
 
 if __name__ == '__main__':
-    print HAN.match(u'中国')
-    print HAN.match(u"中z")
-    print DIG_HYPHEN_DOT.match('18.9876h')
-    print PUNCTUATION.match(".[<|")
+    print(HAN.match(u'中国'))
+    print(HAN.match(u"中z"))
+    print(DIG_HYPHEN_DOT.match('18.9876h'))
+    print(PUNCTUATION.match(".[<|"))
+    print(tokenize_chinese_by_character('中国hello, kitty'))
