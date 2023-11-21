@@ -298,3 +298,16 @@ if __name__ == '__main__':
     print(DIG_HYPHEN_DOT.match('18.9876h'))
     print(PUNCTUATION.match(".[<|"))
     print(tokenize_chinese_by_character('中国hello, kitty'))
+
+    import random
+    import pickle
+    cjb=[]
+    for i in range(5):
+        name=input("name:")        #姓名
+        cj=random.randint(50,100)  #随机生成50——100之间的整数作为成绩
+        cjb.append([name,cj])
+    print(cjb)
+    
+    #将成绩表中的数据保存到cjb.txt文件中
+    with open('cjb.txt','wb')as f:
+        pickle.dump(cjb,f)

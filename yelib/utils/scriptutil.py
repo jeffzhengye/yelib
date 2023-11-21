@@ -111,7 +111,6 @@ def ffind(path, shellglobs=None, namefs=None, relative=True):
             if shellglobs:
                 matched = []
                 for pattern in shellglobs:
-                    print pattern
                     filterf = lambda s: fnmatch.fnmatchcase(s, pattern)
                     matched.extend(filter(filterf, files))
                 fileList.extend(['%s%s%s' % (dir, os.sep, f) for f in matched])
@@ -120,7 +119,7 @@ def ffind(path, shellglobs=None, namefs=None, relative=True):
         if not relative: fileList = map(os.path.abspath, fileList)
         if namefs:
             for ff in namefs: fileList = filter(ff, fileList)
-    except Exception, e:
+    except Exception as e:
         raise ScriptError(str(e))
     return (fileList)
 
@@ -227,7 +226,7 @@ the string ‘dist’, to be searched as is (i.e. in lower case)
                             result[file] = lines
                         else:
                             result[file] = '\n'.join(map(str, lines))
-    except Exception, e:
+    except Exception as e:
         raise ScriptError(str(e))
     return (result)
 
@@ -310,7 +309,7 @@ passed the name filters (specified on lines 43-44) will be considered.
                 fhandle.write(text)
                 fhandle.close()
                 filesChanged += 1
-    except Exception, e:
+    except Exception as e:
         raise ScriptError(str(e))
 
     # return the number of files that had some of their content changed

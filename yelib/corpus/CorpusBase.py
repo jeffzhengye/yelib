@@ -122,7 +122,7 @@ lucene.initVM(vmargs=['-Djava.awt.headless=true'])
 analyzer = PorterStemmerAnalyzer()
 
 def testPorter():
-    print 'lucene', lucene.VERSION, lucene.CLASSPATH
+    print('lucene', lucene.VERSION, lucene.CLASSPATH)
     input = 'this is a test string for Analyzer'
     analyzer = PorterStemmerAnalyzer()
     ts = analyzer.tokenStream("dummy", StringReader(input))
@@ -130,7 +130,7 @@ def testPorter():
     while ts.incrementToken():
         #print ts.r
         #print ts.reflectAsString(True)
-        print termAtt.toString(), offsetAtt.startOffset(), offsetAtt.endOffset()
+        print(termAtt.toString(), offsetAtt.startOffset(), offsetAtt.endOffset())
 
 
 
@@ -167,7 +167,7 @@ class TagCorpus(CorpusBase):
             while True:
                 fname = self.file_queue.get()
                 if fname is None:  # data finished, exit
-                    print 'process %s is ending, with jobs size- %s' % (pid, jobs.qsize())
+                    print('process %s is ending, with jobs size- %s' % (pid, jobs.qsize()))
                     break
                 #print '%s handling: %s' % (pid, fname)
                 with closing(gen_open(fname)) as f:
@@ -198,13 +198,13 @@ class TagCorpus(CorpusBase):
                 num += 1
                 yield doc
                 if num % 10000 == 0:
-                    print 'jobs size:', jobs.qsize()
+                    print('jobs size:', jobs.qsize())
             except Exception as e:
-                print e.message
+                print(e.message)
                 break
         for p in process_list:
             p.join()
-        print 'finished extracting documents, with jobs.size- %s' % jobs.qsize()
+        print('finished extracting documents, with jobs.size- %s' % jobs.qsize())
             #    for thread in workers_t:
             #thread.join()
 
@@ -249,10 +249,10 @@ class TagCorpus(CorpusBase):
                 #if num % 50 == 0:
                 #    print 'jobs size:', jobs.qsize()
             except Exception as e:
-                print e.message
+                print(e.message)
                 break
 
-        print 'finished extracting documents, with jobs.size- %s' % jobs.qsize()
+        print('finished extracting documents, with jobs.size- %s' % jobs.qsize())
             #    for thread in workers_t:
             #thread.join()
 
@@ -353,14 +353,7 @@ class Disk125Sentence(object):
                         yield buf
                 self.file_writer.close()
         except Exception as inst:
-            print 'error in Disk125', type(inst)
-
-            print inst.args
-            print self.fname
-            print inst
-            #print sentence
-            #print [to_utf8(word.lower().strip()) for word in sentence.split() if word.isalpha()]
-            #print doc
+            print('error in Disk125', type(inst))
         finally:
             if self._save:
                 pass
@@ -391,14 +384,8 @@ class Disk125Sentence1(object):
                 #if buf:
                 #    yield buf
         except Exception as inst:
-            print 'error in Disk125', type(inst)
+            print('error in Disk125', type(inst))
 
-            print inst.args
-            print self.fname
-            print inst
-            print sentence
-            print [word.lower().strip() for word in sentence.split() if word.isalpha()]
-            print doc
 
 
 #path = 'collection.spec'

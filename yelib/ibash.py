@@ -47,13 +47,13 @@ def waitForJobs(jobName, num=5, sleeps=20):
 
         if currentnum < num:
             # print "%d < %d jobs, so start to run the next program" %(currentnum, num)
-            print currentnum, num
-            print 'begin sleep'
+            print(currentnum, num)
+            print('begin sleep')
             time.sleep(1)  # leave 4s to let jobName start.
             # print 'end sleep'
             break
         else:
-            print "%d >= %d jobs are runing, so sleep %d second" % (currentnum, num, sleeps)
+            print("%d >= %d jobs are runing, so sleep %d second" % (currentnum, num, sleeps))
             time.sleep(sleeps)
 
 
@@ -63,9 +63,9 @@ VERBOSE = False
 def report(output, cmdtype="UNIX COMMAND:"):
     # Notice the global statement allows input from outside of function
     if VERBOSE:
-        print "%s: %s" % (cmdtype, output)
+        print("%s: %s" % (cmdtype, output))
     else:
-        print output
+        print(output)
 
 
 # Function to control option parsing in Python
