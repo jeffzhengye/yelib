@@ -1,23 +1,75 @@
 # coding: utf-8
 try:
     import cPickle as pickle
-except:
+except ImportError:
     import pickle
 import collections
 import hashlib
 import time
 import functools
-from contextlib import contextmanager
+from contextlib import contextmanager, closing
 import os
 import io
 import gzip
 from bz2 import BZ2File
-from contextlib import closing
 import zlib
-from hashlib import md5
 import datetime
 
-__author__ = 'zheng'
+from logger_utils import setup_logger_loguru as setup_logger
+
+__author__ = "zheng"
+
+logger = setup_logger("debug_only").bind(logger_name="debug_only")
+
+
+def log_performance(interval=0.1):
+    """
+    A decorator to measure the execution time of a function.
+    automatically determine async or sync function
+    
+    Parameters
+    ----------
+    interval : float
+        The minimum execution time interval to log. Defaults to 0.1.
+
+    Returns
+    -------
+    function
+        The decorated function.
+
+    """
+    def decorator(func):
+        import asyncio
+
+        is_async = asyncio.iscoroutinefunction(func)
+
+        if is_async:
+
+            async def wrapper(*args, **kwargs):
+                start_time = time.time()
+                result = await func(*args, **kwargs)
+                end_time = time.time()
+                if end_time - start_time > interval:
+                    logger.info(
+                        f"{func.__name__} 执行时间: {end_time - start_time:.3f}秒"
+                    )
+                return result
+
+        else:
+
+            def wrapper(*args, **kwargs):
+                start_time = time.time()
+                result = func(*args, **kwargs)
+                end_time = time.time()
+                if end_time - start_time > interval:
+                    logger.info(
+                        f"{func.__name__} 执行时间: {end_time - start_time:.3f}秒"
+                    )
+                return result
+
+        return wrapper
+
+    return decorator
 
 
 def unpack(arg, singleton=False):
@@ -48,8 +100,7 @@ def unpack(arg, singleton=False):
             return arg[0]
         else:
             if singleton:
-                raise ValueError("Expected a singleton, got {}".
-                                 format(arg))
+                raise ValueError("Expected a singleton, got {}".format(arg))
             return list(arg)
     else:
         return arg
@@ -61,8 +112,11 @@ def timeit(func):
         start_time = time.time()
         ret_values = func(*args, **kwargs)
         elapsed_time = time.time() - start_time
-        print('function [{}] finished in {} ms'.format(
-            func.__name__, int(elapsed_time * 1000)))
+        print(
+            "function [{}] finished in {} ms".format(
+                func.__name__, int(elapsed_time * 1000)
+            )
+        )
         return ret_values
 
     return new_func
@@ -73,9 +127,10 @@ def timeit_context(name, exit_once_finished=False):
     start_time = time.time()
     yield
     elapsed_time = time.time() - start_time
-    print('[{}] finished in {} ms'.format(name, int(elapsed_time * 1000)))
+    print("[{}] finished in {} ms".format(name, int(elapsed_time * 1000)))
     if exit_once_finished:
         import sys
+
         sys.exit(1)
 
 
@@ -89,17 +144,19 @@ def update_dict(input_dict, update_dict):
                     dict1[key] = value
             else:
                 dict1[key] = value
+
     _update(input_dict, update_dict)
 
 
-def md5digest(str):
-    md5_gen = md5.new()
-    md5_gen.update(str)
+def md5digest(data):
+    md5_gen = hashlib.md5()
+    md5_gen.update(data)
     return md5_gen.hexdigest()
+
 
 def md5hash(my_string):
     m = hashlib.md5()
-    m.update(my_string.encode('utf-8'))
+    m.update(my_string.encode("utf-8"))
     return m.hexdigest()
 
 
@@ -109,7 +166,9 @@ class HashableDict(dict):
 
 
 def gzip_pickle_dump(fname, obj, compresslevel=9):
-    pickle.dump(obj=obj, file=gzip.open(fname, "wb", compresslevel=compresslevel), protocol=2)
+    pickle.dump(
+        obj=obj, file=gzip.open(fname, "wb", compresslevel=compresslevel), protocol=2
+    )
 
 
 def gzip_unpickle(fname):
@@ -124,7 +183,9 @@ def text_decompress(text):
     return zlib.decompress(text)
 
 
-def random_file_name(basename='default', suffix='.jpg', date_formatter="%y-%m%d_%H%M%S", groups=1):
+def random_file_name(
+    basename="default", suffix=".jpg", date_formatter="%y-%m%d_%H%M%S", groups=1
+):
     """
     :param basename:
     :param suffix:
@@ -134,7 +195,7 @@ def random_file_name(basename='default', suffix='.jpg', date_formatter="%y-%m%d_
     """
     name = datetime.datetime.now().strftime(date_formatter)
     filenames = ["_".join([basename, name, str(i)]) + suffix for i in range(groups)]
-        
+
     return filenames[0] if groups == 1 else filenames
 
 
@@ -172,19 +233,19 @@ def flatten_dict(d, parent_key="", sep=".") -> dict:
     return dict(items)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import random
-    import pickle
-    cjb=[]
+
+    cjb = []
     for i in range(5):
-        name=input("name:")        #姓名
-        cj=random.randint(50,100)  #随机生成50——100之间的整数作为成绩
-        cjb.append([name,cj])
+        name = input("name:")  # 姓名
+        cj = random.randint(50, 100)  # 随机生成50——100之间的整数作为成绩
+        cjb.append([name, cj])
     print(cjb)
-    
+
     gzip_pickle_dump("output.pklzip", cjb)
     print(gzip_unpickle("output.pklzip"))
-    
-    #将成绩表中的数据保存到cjb.txt文件中
-    with open('cjb.txt','wb')as f:
-        pickle.dump(cjb,f)
+
+    # 将成绩表中的数据保存到cjb.txt文件中
+    with open("cjb.txt", "wb") as f:
+        pickle.dump(cjb, f)
