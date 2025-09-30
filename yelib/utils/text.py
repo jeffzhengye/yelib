@@ -1,33 +1,34 @@
 # encoding: utf-8
-from bs4 import BeautifulSoup
 import re
-
-__author__ = 'jeffye'
 
 import six
 from six import unichr
+from bs4 import BeautifulSoup
 import pypinyin
 from pypinyin import pinyin
+from zhconv import convert
+
+__author__ = "jeffye"
 
 """
 Suggestion: convert python str to unicode whenever possible.
 """
 
 
-def any2utf8(text, errors='strict', encoding='utf8'):
+def any2utf8(text, errors="strict", encoding="utf8"):
     """Convert a string (unicode or bytestring in `encoding`), to bytestring in utf8.
     only for python 2
     """
     if isinstance(text, unicode):
-        return text.encode('utf8')
+        return text.encode("utf8")
     # do bytestring -> unicode -> utf8 full circle, to ensure valid utf8
-    return unicode(text, encoding, errors=errors).encode('utf8')
+    return unicode(text, encoding, errors=errors).encode("utf8")
 
 
 to_utf8 = any2utf8
 
 
-def any2unicode(text, encoding='utf8', errors='strict'):
+def any2unicode(text, encoding="utf8", errors="strict"):
     """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
     if six.PY3:
         if isinstance(text, str):
@@ -49,11 +50,11 @@ def any2unicode(text, encoding='utf8', errors='strict'):
 
 to_unicode = any2unicode
 
-TAG_CLEANER = re.compile('<.*?>')
+TAG_CLEANER = re.compile("<.*?>")
 
 
 def clean_html_reg(raw_html):
-    clean_text = re.sub(TAG_CLEANER, '', raw_html)
+    clean_text = re.sub(TAG_CLEANER, "", raw_html)
     return clean_text
 
 
@@ -64,25 +65,29 @@ def clean_html_soup(raw_html):
 
 def sentence_split(str_centence):
     list_ret = list()
-    for s_str in str_centence.split('.'):
-        if '?' in s_str:
-            list_ret.extend(s_str.split('?'))
-        elif '!' in s_str:
-            list_ret.extend(s_str.split('!'))
+    for s_str in str_centence.split("."):
+        if "?" in s_str:
+            list_ret.extend(s_str.split("?"))
+        elif "!" in s_str:
+            list_ret.extend(s_str.split("!"))
         else:
             list_ret.append(s_str)
     return list_ret
 
 
-HAN = re.compile(u"^[\u4e00-\u9fa5]+$")
+HAN = re.compile(r"^[\u4e00-\u9fa5]+$")
 
-DIG_HYPHEN_DOT = re.compile(u"^[\d\.-_]+")
-EN = re.compile(u"^[A-Za-z]+$")
-EN_DIG = re.compile(u"^[A-Za-z0-9]+$")
-EMAIL = re.compile(u"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$")
-InternetURL = re.compile(u"[a-zA-z]+://[^\s]*")
-punctuation = "[\u3002\uff1b\uff0c\uff1a\u201c\u201d\uff08\uff09\u3001\uff1f\u300a\u300b]"
-PUNCTUATION = re.compile(u"^[,，\.·‘~’】【〔〕‰{}〉〈;、。:；\"'!!！|…&★#～？／《》“”：（）―－＋\*+％\(\)\.\:\?\[\]<>\|]+$")
+DIG_HYPHEN_DOT = re.compile(r"^[\d\.-_]+")
+EN = re.compile(r"^[A-Za-z]+$")
+EN_DIG = re.compile(r"^[A-Za-z0-9]+$")
+EMAIL = re.compile(r"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$")
+InternetURL = re.compile(r"[a-zA-z]+://[^\s]*")
+punctuation = (
+    "[\u3002\uff1b\uff0c\uff1a\u201c\u201d\uff08\uff09\u3001\uff1f\u300a\u300b]"
+)
+PUNCTUATION = re.compile(
+    r"^[,，\.·‘~’】【〔〕‰{}〉〈;、。:；\"'!!！|…&★#～？／《》“”：（）―－＋\*+％\(\)\.\:\?\[\]<>\|]+$"
+)
 
 
 def normalize(text):
@@ -105,7 +110,7 @@ def normalize(text):
 
 def is_chinese(uchar):
     """判断一个unicode是否是汉字"""
-    if uchar >= u'\u4e00' and uchar <= u'\u9fa5':
+    if uchar >= "\u4e00" and uchar <= "\u9fa5":
         return True
     else:
         return False
@@ -113,7 +118,7 @@ def is_chinese(uchar):
 
 def is_number(uchar):
     """判断一个unicode是否是数字"""
-    if uchar >= u'\u0030' and uchar <= u'\u0039':
+    if uchar >= "\u0030" and uchar <= "\u0039":
         return True
     else:
         return False
@@ -121,7 +126,9 @@ def is_number(uchar):
 
 def is_alphabet(uchar):
     """判断一个unicode是否是英文字母"""
-    if (uchar >= u'\u0041' and uchar <= u'\u005a') or (uchar >= u'\u0061' and uchar <= u'\u007a'):
+    if (uchar >= "\u0041" and uchar <= "\u005a") or (
+        uchar >= "\u0061" and uchar <= "\u007a"
+    ):
         return True
     else:
         return False
@@ -138,12 +145,12 @@ def is_other(uchar):
 def B2Q(uchar):
     """半角转全角"""
     inside_code = ord(uchar)
-    if inside_code < 0x0020 or inside_code > 0x7e:  # 不是半角字符就返回原来的字符
+    if inside_code < 0x0020 or inside_code > 0x7E:  # 不是半角字符就返回原来的字符
         return uchar
     if inside_code == 0x0020:  # 除了空格其他的全角半角的公式为:半角=全角-0xfee0
         inside_code = 0x3000
     else:
-        inside_code += 0xfee0
+        inside_code += 0xFEE0
     return unichr(inside_code)
 
 
@@ -153,8 +160,8 @@ def Q2B(uchar):
     if inside_code == 0x3000:
         inside_code = 0x0020
     else:
-        inside_code -= 0xfee0
-    if inside_code < 0x0020 or inside_code > 0x7e:  # 转完之后不是半角字符返回原来的字符
+        inside_code -= 0xFEE0
+    if inside_code < 0x0020 or inside_code > 0x7E:  # 转完之后不是半角字符返回原来的字符
         return uchar
     return unichr(inside_code)
 
@@ -187,7 +194,7 @@ def string2List(ustring):
     return retList
 
 
-class CHARTYPE():
+class CHARTYPE:
     LETTER = 1
     CJK = 2
     DIGIT = 3
@@ -195,6 +202,7 @@ class CHARTYPE():
 
 
 # CHARTYPE = enum(LETTER=1, CJK=2, DIGIT=3, OTHER=4)
+
 
 def getType(c):
     if is_number(c):
@@ -210,7 +218,9 @@ def remove_punctuation(strs):
     :param strs:
     :return:
     """
-    return re.sub("[\s+\.\!\/<>“”,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）]+", "", strs.strip())
+    return re.sub(
+        r"[\s+\.\!\/<>“”,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）]+", "", strs.strip()
+    )
 
 
 def traditional2simplified(sentence):
@@ -219,7 +229,7 @@ def traditional2simplified(sentence):
     :param sentence: 待转换的句子
     :return: 将句子中繁体字转换为简体字之后的句子
     """
-    return Converter('zh-hans').convert(sentence)
+    return convert(sentence, "zh-hans")
 
 
 def simplified2traditional(sentence):
@@ -228,7 +238,7 @@ def simplified2traditional(sentence):
     :param sentence: 待转换的句子
     :return: 将句子中简体字转换为繁体字之后的句子
     """
-    return Converter('zh-hant').convert(sentence)
+    return convert(sentence, "zh-hant")
 
 
 def get_homophones_by_char(input_char):
@@ -239,8 +249,11 @@ def get_homophones_by_char(input_char):
     """
     result = []
     # CJK统一汉字区的范围是0x4E00-0x9FA5,也就是我们经常提到的20902个汉字
-    for i in range(0x4e00, 0x9fa6):
-        if pinyin([chr(i)], style=pypinyin.NORMAL)[0][0] == pinyin(input_char, style=pypinyin.NORMAL)[0][0]:
+    for i in range(0x4E00, 0x9FA6):
+        if (
+            pinyin([chr(i)], style=pypinyin.NORMAL)[0][0]
+            == pinyin(input_char, style=pypinyin.NORMAL)[0][0]
+        ):
             result.append(chr(i))
     return result
 
@@ -253,7 +266,7 @@ def get_homophones_by_pinyin(input_pinyin):
     """
     result = []
     # CJK统一汉字区的范围是0x4E00-0x9FA5,也就是我们经常提到的20902个汉字
-    for i in range(0x4e00, 0x9fa6):
+    for i in range(0x4E00, 0x9FA6):
         if pinyin([chr(i)], style=pypinyin.TONE2)[0][0] == input_pinyin:
             # TONE2: 中zho1ng
             result.append(chr(i))
@@ -273,41 +286,42 @@ def tokenize_chinese_by_character(query):
                 if preType == curType:
                     buf.append(c)
                 else:
-                    retList.append(''.join(buf))
+                    retList.append("".join(buf))
                     buf = []
                     buf.append(c)
             else:
                 buf.append(c)
         else:
             if len(buf) > 0:
-                retList.append(''.join(buf))
+                retList.append("".join(buf))
                 buf = []
             if len(c.strip()) > 0:
                 retList.append(c)
         preType = curType
     if len(buf) > 0:
-        token = ''.join(buf)
+        token = "".join(buf)
         if len(token.strip()) > 0:
-            retList.append(''.join(buf))
+            retList.append("".join(buf))
     return retList
 
 
-if __name__ == '__main__':
-    print(HAN.match(u'中国'))
-    print(HAN.match(u"中z"))
-    print(DIG_HYPHEN_DOT.match('18.9876h'))
+if __name__ == "__main__":
+    print(HAN.match("中国"))
+    print(HAN.match("中z"))
+    print(DIG_HYPHEN_DOT.match("18.9876h"))
     print(PUNCTUATION.match(".[<|"))
-    print(tokenize_chinese_by_character('中国hello, kitty'))
+    print(tokenize_chinese_by_character("中国hello, kitty"))
 
     import random
     import pickle
-    cjb=[]
+
+    cjb = []
     for i in range(5):
-        name=input("name:")        #姓名
-        cj=random.randint(50,100)  #随机生成50——100之间的整数作为成绩
-        cjb.append([name,cj])
+        name = input("name:")  # 姓名
+        cj = random.randint(50, 100)  # 随机生成50——100之间的整数作为成绩
+        cjb.append([name, cj])
     print(cjb)
-    
-    #将成绩表中的数据保存到cjb.txt文件中
-    with open('cjb.txt','wb')as f:
-        pickle.dump(cjb,f)
+
+    # 将成绩表中的数据保存到cjb.txt文件中
+    with open("cjb.txt", "wb") as f:
+        pickle.dump(cjb, f)
