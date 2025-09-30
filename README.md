@@ -25,4 +25,3 @@ collect and write lots of utils for NLP and computer vision.
 ## 然后安装构建好的包
 
 * pip install dist/yelib-0.1.1-py3-none-any.whl
-
