@@ -116,7 +116,7 @@ def setup_logger_loguru(
 
     # 添加单例保护
     if hasattr(setup_logger_loguru, "_initialized"):
-        return logger
+        return _logger
     setup_logger_loguru._initialized = True
 
     # 配置Loguru异步日志
