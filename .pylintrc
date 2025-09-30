@@ -1,0 +1,18 @@
+[MASTER]
+disable=
+    W0611,   # unused-import
+    C0114,   # missing-module-docstring
+    C0115,   # missing-class-docstring
+    C0116,   # missing-function-docstring
+    R0903,   # too-few-public-methods
+    W0612,   # unused-variable
+    W1309,   # fstring
+    E0401,   # import-error
+
+[MESSAGES CONTROL]
+# 明确启用所有消息类型
+enable=all
+
+[FORMAT]
+# 设置单行最大长度
+max-line-length=120

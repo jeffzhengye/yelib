@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yelib"
+version = "0.1.1"
+dependencies = [
+    "numpy",
+]
+
+[project.scripts]
+yelib = "yelib.__main__:entry_point"
+gelib = "yelib.__main__:main"
